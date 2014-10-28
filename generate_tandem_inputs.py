@@ -72,6 +72,7 @@ INDEX=$((SGE_TASK_ID-1))
 INPUT_FILE=${SAMPLE_LIST[$INDEX]}
 
 echo $INPUT_FILE
+source /etc/profile.d/modules_bash.sh
 module load tandem
 tandem.exe $INPUT_FILE
 """
