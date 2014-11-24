@@ -22,7 +22,7 @@ def generate_taxonomy(directory,fasta_path,use_crap=False):
 	input_xml.close()
 
 
-def generate_file(directory,mzml_path,default_path):
+def generate_file(directory,mzml_path,default_path,threads):
 	mzml = os.path.basename(mzml_path)
 	#mzml_relpath = os.path.relpath(mzml_path,directory)
 	#default_relpath = os.path.relpath(default_path,directory)
@@ -31,6 +31,7 @@ def generate_file(directory,mzml_path,default_path):
 	input_xml = open(input_path,'w')
 	input_xml_text = """<?xml version="1.0" encoding="iso-8859-1" ?>
 <bioml>
+<note type="input" label="spectrum, threads">%(threads)d</note>
 <note type="input" label="spectrum, path">%(mzml_path)s</note>
 <note type="input" label="spectrum, skyline path">%(mzml_path)s</note>
 <note type="input" label="list path, default parameters">%(default_file)s</note>
@@ -47,21 +48,21 @@ def generate_file(directory,mzml_path,default_path):
 	subs = {'output_path': output,
 			'default_file': default_path,
 			'mzml_path': mzml_path,
-			'extra': extra
-#            'seq_fasta': seq_fasta_file,
+			'extra': extra,
+            'threads': threads,
 			}
 	
 	input_xml.write(input_xml_text % subs)
 	input_xml.close()
 
-def generate_qsub_script(directory, number_of_jobs):
+def generate_qsub_script(directory, threads, number_of_jobs):
 	script = open(os.path.join(directory,'tandem_qsub_script'),'w')
 	script_text = """#!/bin/bash
 #$ -S /bin/bash
 #$ -cwd
 #$ -V
 #$ -t 1-%(number_of_jobs)s
-
+#$ -pe %(threads)d
 # Create a bash array of all input files 
 SAMPLE_LIST=(*.input.xml)
 
@@ -76,7 +77,7 @@ source /etc/profile.d/modules_bash.sh
 module load tandem
 tandem.exe $INPUT_FILE
 """
-	script.write(script_text % {'number_of_jobs':number_of_jobs})
+	script.write(script_text % {'number_of_jobs':number_of_jobs,'threads':threads})
 	
 
 def generate_files(options):
@@ -84,19 +85,20 @@ def generate_files(options):
 		os.makedirs(options.directory)
 	fasta_path = os.path.abspath(options.fasta_file)
 	generate_taxonomy(options.directory,fasta_path)
-	mzmls = glob.glob(options.mzml)
+	mzmls = options.mzml
 	for mzml in mzmls:
 		mzml_path = os.path.abspath(mzml)
 		default_path = os.path.abspath(options.default_file)
-		generate_file(options.directory,mzml_path,default_path)
-	generate_qsub_script(options.directory, len(mzmls))
+		generate_file(options.directory,mzml_path,default_path,options.threads)
+	generate_qsub_script(options.directory, options.threads, len(mzmls))
 
 def main():
 	parser = argparse.ArgumentParser(description='Runs xtandem from Galaxy')
-	parser.add_argument('--mzml', required=True, help='An mzML file path.  May use wildcards to use multiple files, such as *.mzml')
+	parser.add_argument('--mzml', required=True, nargs='+', help='An mzML file path.  May use wildcards to use multiple files, such as *.mzml')
 	parser.add_argument('--directory', required=True, help='The name of the directory to output all files to.  The directory will be made if it does not exist.')
 	parser.add_argument('--default_file', required=True, help='The path to the default xml file.')
 	parser.add_argument('--fasta_file', required=True, help='Fasta file')
+	parser.add_argument('--threads', required=False, default=8, type=int, help='The number of threads to run for each X! Tandem job')
 #	parser.add_argument('--taxon', required=True, help='Specify the correct reference from the taxonomy.xml file')
 #	parser.add_argument('--taxonomy_file', required=False, help='Optional: The path of the taxonomy xml file if different from the default configuration',default=None)
 	options = parser.parse_args()
