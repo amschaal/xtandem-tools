@@ -62,7 +62,7 @@ def generate_qsub_script(directory, threads, number_of_jobs):
 #$ -cwd
 #$ -V
 #$ -t 1-%(number_of_jobs)s
-#$ -pe %(threads)d
+#$ -pe threaded %(threads)d
 # Create a bash array of all input files 
 SAMPLE_LIST=(*.input.xml)
 
