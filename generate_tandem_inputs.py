@@ -63,6 +63,11 @@ def generate_qsub_script(directory, threads, number_of_jobs):
 #$ -V
 #$ -t 1-%(number_of_jobs)s
 #$ -pe threaded %(threads)d
+#$ -q all.q
+#$ -j y
+#$ -l piledriver
+#$ -e logs
+#$ -o logs
 # Create a bash array of all input files 
 SAMPLE_LIST=(*.input.xml)
 
@@ -83,6 +88,8 @@ tandem.exe $INPUT_FILE
 def generate_files(options):
 	if not os.path.exists(options.directory):
 		os.makedirs(options.directory)
+	if not os.path.exists(os.path.join(options.directory,'logs')):
+		os.makedirs(os.path.join(options.directory,'logs'))
 	fasta_path = os.path.abspath(options.fasta_file)
 	generate_taxonomy(options.directory,fasta_path)
 	mzmls = options.mzml
