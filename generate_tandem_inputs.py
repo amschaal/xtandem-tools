@@ -66,6 +66,7 @@ def generate_qsub_script(directory, threads, number_of_jobs):
 #$ -q all.q
 #$ -j y
 #$ -l piledriver
+#$ -N %(directory)s
 #$ -e logs
 #$ -o logs
 # Create a bash array of all input files 
@@ -82,7 +83,7 @@ source /etc/profile.d/modules_bash.sh
 module load tandem
 tandem.exe $INPUT_FILE
 """
-	script.write(script_text % {'number_of_jobs':number_of_jobs,'threads':threads})
+	script.write(script_text % {'number_of_jobs':number_of_jobs,'threads':threads,'directory':directory})
 	
 
 def generate_files(options):
