@@ -1,0 +1,12 @@
+<Scaffold>
+	<Experiment name="scaffold_experiment">
+		<FastaDatabase id="swissprot" path="%(fasta)s"/> 
+%(biological_samples)s
+		<DisplayThresholds name="DTs" id="thresh" proteinProbability="0.95"
+			minimumPeptideCount="2" peptideProbability="0.95"/>
+		<Export type="sfd" thresholds="thresh" 
+	 		path="scaffold.sfd"/> 
+		<Export type="protxml" thresholds="thresh" 
+	 		path="scaffold_protxml.xml"/> 
+	</Experiment>
+</Scaffold>

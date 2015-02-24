@@ -1,0 +1,3 @@
+	<BiologicalSample database="swissprot">
+		<InputFile>%(input_file)s</InputFile> 
+	</BiologicalSample>
