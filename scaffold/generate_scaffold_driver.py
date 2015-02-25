@@ -5,16 +5,13 @@ import subprocess
 
 def generate_scaffold_file(input_files,fasta_path,output_file,template,sample_template):
 	driver_xml = open(output_file,'w')
-
-	samples = '\n'.join([sample_template % {'input_file':input_file} for input_file in input_files])
+	samples = '\n'.join([sample_template.format(input_file=input_file) for input_file in input_files])
 #	if taxonomy_file_path:
 #		extra += '<note type="input" label="list path, taxonomy information">%s</note>' % taxonomy_file_path 
-	
 	subs = {'fasta': fasta_path,
 			'biological_samples':samples
 			}
-	
-	driver_xml.write(template % subs)
+	driver_xml.write(template.format(**subs))
 	driver_xml.close()
 	return output_file
 
@@ -22,6 +19,8 @@ def run(options):
 	fasta_path = options.fasta_file
 	output_file = options.output_file
 	input_files = options.input_files
+	if len(input_files) == 1:
+                input_files = glob.glob(input_files[0])
 	template = open(options.template,'r').read()
 	sample_template = open(options.sample_template,'r').read()
 	generate_scaffold_file(input_files,fasta_path,output_file,template,sample_template)

@@ -1,12 +1,26 @@
-<Scaffold>
-	<Experiment name="scaffold_experiment">
-		<FastaDatabase id="swissprot" path="%(fasta)s"/> 
-%(biological_samples)s
-		<DisplayThresholds name="DTs" id="thresh" proteinProbability="0.95"
-			minimumPeptideCount="2" peptideProbability="0.95"/>
-		<Export type="sfd" thresholds="thresh" 
-	 		path="scaffold.sfd"/> 
-		<Export type="protxml" thresholds="thresh" 
-	 		path="scaffold_protxml.xml"/> 
-	</Experiment>
+<?xml version="1.0" encoding="UTF-8"?>
+<Scaffold pathsep="/" version="Scaffold_4.4.0">
+    <Experiment analyzeWithTandem="false" annotateWithGOA="false"
+        condenseDataWhileLoading="true" connectToNCBI="false"
+        name="My Experiment" peakListChargeStatesCalculated="false"
+        peakListDeisotoped="false" protectDisplaySettings="false"
+        protectExportSpectra="false" protectThresholds="false"
+        showDataLoadingPane="true" showNavigationPane="true"
+        showProteinHomologyPane="true" showProteinsPane="true"
+        showPublishPane="true" showQuantifyPane="true"
+        showSampleNotes="true" showSamplesPane="true"
+        showSpectraPane="false" showStatisticsPane="true"
+        useFamilyProteinGrouping="true"
+        useIndependentSampleGrouping="false" viewBioSamples="true">
+        <FastaDatabase id="db0" path="{fasta}"/>
+{biological_samples}
+        <DisplayThresholds deltaMassTolerance="0.0" id="thresh"
+            minimumNTT="0" minimumPeptideCount="1"
+            minimumPeptideLength="0" name="99%"
+            peptideProbability="0.99" proteinProbability="0.12"
+            useAMU="false" useDeltaMassTolerance="false"/>
+        <Export thresholds="thresh" type="sf3"/>
+    </Experiment>
 </Scaffold>
+
+
