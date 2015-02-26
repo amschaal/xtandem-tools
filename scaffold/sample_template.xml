@@ -1,3 +1,3 @@
 	<BiologicalSample database="db0" analyzeAsMudpit="false">
-		<InputFile>{input_file}</InputFile> 
+		<InputFile sampleName="{sample_name}">{input_file}</InputFile> 
 	</BiologicalSample>

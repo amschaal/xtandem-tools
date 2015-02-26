@@ -2,10 +2,26 @@ import os
 import glob
 import argparse
 import subprocess
+import ntpath
+from xml.etree import ElementTree as ET
+
+def parse_name(path):
+	print "Parsing sample name from %s" % path
+	try:	
+		xml_file = open(path,'r')
+		for line in	xml_file:
+			if 'label="spectrum, path"' in line:
+				path = ET.fromstring(line).text
+				head, tail = ntpath.split(path)
+				return tail or ntpath.basename(head)
+	except Exception, e:
+		pass
+	print "Unable to parse name from file: %s" % path	
+	return ''
 
 def generate_scaffold_file(input_files,fasta_path,output_file,template,sample_template):
 	driver_xml = open(output_file,'w')
-	samples = '\n'.join([sample_template.format(input_file=input_file) for input_file in input_files])
+	samples = '\n'.join([sample_template.format(input_file=input_file,sample_name=parse_name(input_file)) for input_file in input_files])
 #	if taxonomy_file_path:
 #		extra += '<note type="input" label="list path, taxonomy information">%s</note>' % taxonomy_file_path 
 	subs = {'fasta': fasta_path,
