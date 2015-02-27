@@ -1,3 +1,3 @@
-	<BiologicalSample database="db0" analyzeAsMudpit="false">
+	<BiologicalSample database="db0" analyzeAsMudpit="false" name="{sample_name}">
 		<InputFile sampleName="{sample_name}">{input_file}</InputFile> 
 	</BiologicalSample>
