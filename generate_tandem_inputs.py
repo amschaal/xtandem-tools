@@ -22,7 +22,7 @@ def generate_taxonomy(directory,fasta_path,use_crap=False):
 	input_xml.close()
 
 
-def generate_file(directory,mzml_path,default_path,threads):
+def generate_input_file(directory,mzml_path,default_path,threads):
 	mzml = os.path.basename(mzml_path)
 	#mzml_relpath = os.path.relpath(mzml_path,directory)
 	#default_relpath = os.path.relpath(default_path,directory)
@@ -92,12 +92,15 @@ def generate_files(options):
 	if not os.path.exists(os.path.join(options.directory,'logs')):
 		os.makedirs(os.path.join(options.directory,'logs'))
 	fasta_path = os.path.abspath(options.fasta_file)
+	#Create taxonomy.xml file to be referenced in each XML input file
 	generate_taxonomy(options.directory,fasta_path)
+	#Create input XML drivers for each mzml file	
 	mzmls = options.mzml
+	default_path = os.path.abspath(options.default_file)
 	for mzml in mzmls:
 		mzml_path = os.path.abspath(mzml)
-		default_path = os.path.abspath(options.default_file)
-		generate_file(options.directory,mzml_path,default_path,options.threads)
+		generate_input_file(options.directory,mzml_path,default_path,options.threads)
+	#Create shell script to run tandem on all input files as an SGE array job
 	generate_qsub_script(options.directory, options.threads, len(mzmls))
 
 def main():
