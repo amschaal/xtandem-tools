@@ -84,7 +84,31 @@ module load tandem
 tandem.exe $INPUT_FILE
 """
 	script.write(script_text % {'number_of_jobs':number_of_jobs,'threads':threads,'directory':directory})
-	
+
+def generate_sbatch_script(directory, threads, number_of_jobs):
+	script = open(os.path.join(directory,'tandem_sbatch_script'),'w')
+	script_text = """#!/bin/bash
+#$ --export=ALL
+#$ -a 1-%(number_of_jobs)s
+#$ -n %(threads)d
+#$ --job-name=%(directory)s
+#$ -e logs
+#$ -o logs
+# Create a bash array of all input files 
+SAMPLE_LIST=(*.input.xml)
+
+# Get index from $SGE_TASK_ID
+INDEX=$SLURM_ARRAY_TASK_ID-1
+
+# Get file name from the array index
+INPUT_FILE=${SAMPLE_LIST[$INDEX]}
+
+echo $INPUT_FILE
+source /etc/profile.d/modules_bash.sh
+module load tandem
+tandem.exe $INPUT_FILE
+"""
+	script.write(script_text % {'number_of_jobs':number_of_jobs,'threads':threads,'directory':directory})
 
 def generate_files(options):
 	if not os.path.exists(options.directory):
@@ -101,7 +125,10 @@ def generate_files(options):
 		mzml_path = os.path.abspath(mzml)
 		generate_input_file(options.directory,mzml_path,default_path,options.threads)
 	#Create shell script to run tandem on all input files as an SGE array job
-	generate_qsub_script(options.directory, options.threads, len(mzmls))
+	if options.qsub:
+		generate_qsub_script(options.directory, options.threads, len(mzmls))
+	if options.sbatch:
+		generate_sbatch_script(options.directory, options.threads, len(mzmls))
 
 def main():
 	parser = argparse.ArgumentParser(description='Runs xtandem from Galaxy')
@@ -110,6 +137,8 @@ def main():
 	parser.add_argument('--default_file', required=True, help='The path to the default xml file.')
 	parser.add_argument('--fasta_file', required=True, help='Fasta file')
 	parser.add_argument('--threads', required=False, default=8, type=int, help='The number of threads to run for each X! Tandem job')
+	parser.add_argument('--sbatch', action='store_true', default=False, help='Generate an sbatch script')
+	parser.add_argument('--qsub', action='store_true', default=False, help='Generate a qsub script')
 #	parser.add_argument('--taxon', required=True, help='Specify the correct reference from the taxonomy.xml file')
 #	parser.add_argument('--taxonomy_file', required=False, help='Optional: The path of the taxonomy xml file if different from the default configuration',default=None)
 	options = parser.parse_args()
